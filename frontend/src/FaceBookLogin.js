@@ -1,27 +1,21 @@
 import React from "react";
-// import FacebookLogin from "react-facebook-login";
+import FacebookLogin from "react-facebook-login";
 // import { FacebookLoginButton } from "react-social-login-buttons";
-import { LoginSocialFacebook } from "reactjs-social-login";
-import MyFacebookLoginButton from "./MyFacebookLoginButton";
+// import { LoginSocialFacebook } from "reactjs-social-login";
+// import MyFacebookLoginButton from "./MyFacebookLoginButton";
 function FacebookAuth() {
-  //   const responseFacebook = (response) => {
-  //     if (response.accessToken) {
-  //       onLogin(response.accessToken);
-  //     }
-  //   };
+  const responseFacebook = (response) => {
+    console.log(response);
+  };
 
   return (
-    <LoginSocialFacebook
+    <FacebookLogin
       appId="1003774381513068"
-      onresolve={(response) => {
-        console.log(response);
-      }}
-      onReject={(error) => {
-        console.log(error);
-      }}
-    >
-      <MyFacebookLoginButton />
-    </LoginSocialFacebook>
+      autoLoad={true}
+      fields="id,name,photos"
+      icon="fa-facebook"
+      callback={responseFacebook}
+    />
   );
 }
 
