@@ -32,6 +32,25 @@ app.get("/facebook-data", async (req, res) => {
   }
 });
 
+app.get("/getFacebookData", async (req, res) => {
+  const { accessToken } = req.query;
+  if (!accessToken) {
+    return res.status(400).json({ error: "accessToken is required" });
+  }
+
+  const url = `https://graph.facebook.com/me?fields=id,name,posts{id,link,message}&access_token=${accessToken}`;
+  try {
+    const userData = await axios.get(url);
+    const posts = userData.data.posts.data.map((post) => ({
+      id: post.id,
+      link: post.link,
+    }));
+    res.json(posts);
+  } catch (error) {
+    res.status(500).send(error.message);
+  }
+});
+
 app.listen(5000, () => {
   console.log("Server running on http://localhost:5000");
 });
