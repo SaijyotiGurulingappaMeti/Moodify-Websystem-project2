@@ -1,13 +1,12 @@
-import { createButton } from "react-social-login-buttons";
+import React from "react";
+import Button from "react-bootstrap/Button";
 
-const config = {
-  text: "Log in with Facebook",
-  icon: "facebook",
-  iconFormat: (name) => `fa fa-${name}`,
-  style: { background: "#3b5998" },
-  activeStyle: { background: "#293e69" },
+const MyFacebookLoginButton = () => {
+  return (
+    <div>
+      <Button>Primary</Button>
+    </div>
+  );
 };
-/** My Facebook login button. */
-const MyFacebookLoginButton = createButton(config);
 
 export default MyFacebookLoginButton;
