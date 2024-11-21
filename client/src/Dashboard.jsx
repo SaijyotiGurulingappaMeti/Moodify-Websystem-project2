@@ -1,9 +1,11 @@
 import NavigationBar from "./NavigationBar";
+import PinList from "./PinList";
 
 const Dashboard = () => {
   return (
-    <div className="w-full">
+    <div>
       <NavigationBar />
+      <PinList />
     </div>
   );
 };
