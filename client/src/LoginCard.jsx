@@ -6,7 +6,7 @@ const LoginCard = () => {
   return (
     <div className=" min-h-screen w-full bg-gray-900 flex items-center justify-center overflow-hidden">
       <motion.div
-        className="absolute top-1/4 left-1/4 w-1/2 h-1/2 bg-blue-500 rounded-full filter blur-3xl opacity-20"
+        className="absolute top-1/4 left-1/4 w-1/2 h-1/2 bg-red-500 rounded-full filter blur-3xl opacity-20"
         animate={{
           scale: [1, 1.2, 1],
           opacity: [0.2, 0.3, 0.2],
@@ -18,7 +18,7 @@ const LoginCard = () => {
         }}
       />
       <motion.div
-        className="absolute bottom-1/4 right-1/4 w-1/3 h-1/3 bg-purple-500 rounded-full filter blur-3xl opacity-20"
+        className="absolute bottom-1/4 right-1/4 w-1/3 h-1/3 bg-red-900 rounded-full filter blur-3xl opacity-20"
         animate={{
           scale: [1, 1.3, 1],
           opacity: [0.2, 0.4, 0.2],
