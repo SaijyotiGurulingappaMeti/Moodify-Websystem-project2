@@ -108,8 +108,18 @@ app.get("/auth/pins", async (req, res) => {
       },
     });
 
-    const pins = pinsResponse.data.data || pinsResponse.data;
-    console.log(pins);
+    const pins = pinsResponse.data.items.map((pin) => ({
+      id: pin.id,
+      title: pin.title || "Untitled",
+      description: pin.description || "No description",
+      link: pin.link || "No link available",
+      imageUrl: pin.media?.images?.["600x"]?.url || "No image available",
+      dominantColor: pin.dominant_color || "#000000",
+      boardOwner: pin.board_owner?.username || "Unknown",
+      createdAt: pin.created_at,
+    }));
+
+    console.log(pins); // For debugging
     res.json(pins);
   } catch (error) {
     if (error.response) {
