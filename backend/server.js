@@ -135,6 +135,20 @@ app.get("/auth/pins", async (req, res) => {
     }
   }
 });
+app.get("/auth/logout", (req, res) => {
+  if (req.session) {
+    req.session.destroy((err) => {
+      if (err) {
+        console.error("Error destroying session:", err);
+        return res.status(500).send("Could not log out. Please try again.");
+      }
+      // Redirect to the client-side app after logout
+      res.status(200).send("Logged out successfully");
+    });
+  } else {
+    res.status(200).send("No active session to log out from.");
+  }
+});
 
 app.listen(4000, () => {
   console.log("Server running on http://localhost:4000");

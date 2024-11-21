@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import NavigationBar from "./NavigationBar";
-import PreLoader from "./PreLoader";
+
 
 
 const Dashboard = () => {
@@ -51,8 +51,9 @@ const Dashboard = () => {
     <div className="w-full">
 
       <NavigationBar />
-     
+      
     </div>
+    
 
   
   );

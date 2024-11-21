@@ -22,16 +22,32 @@ const LogoutButton = () => {
     setIsDialogOpen(false);
   };
 
-  const handleLogout = () => {
-    console.log("User has logged out");
-    setIsDialogOpen(false); // Close the dialog after logout
+  const handleLogout = async () => {
+    try {
+      // Make a request to the server to log out
+      const response = await fetch("http://localhost:4000/auth/logout", {
+        method: "GET",
+        credentials: "include", // Include cookies in the request
+      });
+
+      if (response.ok) {
+        // Redirect to the homepage after successful logout
+        window.location.href = "http://localhost:5173/";
+      } else {
+        console.error("Failed to log out:", response.statusText);
+      }
+    } catch (error) {
+      console.error("Error during logout:", error);
+    } finally {
+      setIsDialogOpen(false); // Close the dialog
+    }
   };
 
   return (
     <div>
       <Button
         onClick={openDialog}
-         className="w-full bg-[#E60023] hover:bg-[#ad001b] text-white rounded-xl"
+        className="w-full bg-[#E60023] hover:bg-[#ad001b] text-white rounded-xl"
       >
         Logout
       </Button>
@@ -45,11 +61,11 @@ const LogoutButton = () => {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel onClick={closeDialog}>
-              Cancel
-            </AlertDialogCancel>
+            <AlertDialogCancel onClick={closeDialog}>Cancel</AlertDialogCancel>
             <AlertDialogAction onClick={handleLogout}>
-              Yes, Logout
+              <div className="bg-[#E60023] hover:bg-[#ad001b] text-white p-2 rounded-lg">
+                Yes, Logout
+              </div>
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
