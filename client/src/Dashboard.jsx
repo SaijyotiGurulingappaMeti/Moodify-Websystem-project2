@@ -7,7 +7,6 @@ const Dashboard = () => {
     <div>
       <NavigationBar />
       <PinList />
-    </div>  
     </div>
   );
 };
