@@ -32,8 +32,8 @@ const LoginCard = () => {
 
       <div className="align-middle justify-center border-gray-700 z-10">
         <Card className="w-[350px] border bg-black/30 backdrop-blur-xl">
-          <CardHeader>
-            <CardTitle className="font-doto text-6xl hover:text-red-700">
+          <CardHeader className="text-center">
+            <CardTitle className="font-doto text-6xl hover:text-red-700 items-center">
               <motion.h2
                 initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}

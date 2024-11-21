@@ -1,4 +1,7 @@
 import { useEffect, useState } from "react";
+import NavigationBar from "./NavigationBar";
+import PreLoader from "./PreLoader";
+
 
 const Dashboard = () => {
   const [userInfo, setUserInfo] = useState(null);
@@ -30,27 +33,28 @@ const Dashboard = () => {
   }
 
   if (!userInfo) {
-    return <div>Loading...</div>;
+    return <div
+    className="text-center"
+    style={{
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      height: '100vh',
+    }}
+  >
+    Loading...
+  </div>
   }
 
   return (
-    <div>
-      <h1>Welcome, {userInfo.username}</h1>
-      <p>ID: {userInfo.id}</p>
-      <p>
-        profile image:
-        <img
-          src={userInfo.profile_image}
-          alt={`${userInfo.username}'s profile`}
-          style={{
-            width: "50px",
-            height: "50px",
-            borderRadius: "50%",
-            alignItems: "center",
-          }}
-        />
-      </p>
+   
+    <div className="w-full">
+
+      <NavigationBar />
+     
     </div>
+
+  
   );
 };
 
