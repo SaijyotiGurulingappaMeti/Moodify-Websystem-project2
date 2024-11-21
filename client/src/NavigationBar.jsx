@@ -51,6 +51,9 @@ const NavigationBar = () => {
     <nav className="w-full flex justify-between items-center px-6 py-4 bg-gray-100 border-b border-gray-300">
       {/* Left: Logout Button */}
       <LogoutButton />
+      <div className="flex-1 text-center">
+      <span className="font-bold font-doto text-4xl text-red-700 hover:text-[#E60023]">Moodify</span>
+    </div>
 
       {/* Right: Username and Profile Picture */}
       <div className="flex items-center space-x-4">
