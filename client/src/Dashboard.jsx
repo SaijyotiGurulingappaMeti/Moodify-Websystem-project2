@@ -1,4 +1,5 @@
 import NavigationBar from "./NavigationBar";
+
 import PinList from "./PinList";
 
 const Dashboard = () => {
@@ -6,6 +7,7 @@ const Dashboard = () => {
     <div>
       <NavigationBar />
       <PinList />
+    </div>  
     </div>
   );
 };
