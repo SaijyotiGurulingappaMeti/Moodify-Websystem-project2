@@ -6,7 +6,9 @@ const Dashboard = () => {
   return (
     <div>
       <NavigationBar />
-      <PinList />
+      <main className="pt-[80px]">
+        <PinList />
+      </main>
     </div>
   );
 };
