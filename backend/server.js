@@ -107,7 +107,6 @@ app.get("/auth/pins", async (req, res) => {
         Authorization: `Bearer ${req.session.accessToken}`,
       },
     });
-
     const pins = pinsResponse.data.items.map((pin) => ({
       id: pin.id,
       title: pin.title || "Untitled",
@@ -119,7 +118,7 @@ app.get("/auth/pins", async (req, res) => {
       createdAt: pin.created_at,
     }));
 
-    console.log(pins); // For debugging
+    // console.log(pins); // For debugging
     res.json(pins);
   } catch (error) {
     if (error.response) {
@@ -145,6 +144,7 @@ app.get("/auth/pins", async (req, res) => {
     }
   }
 });
+//Logout functionality
 app.get("/auth/logout", (req, res) => {
   if (req.session) {
     req.session.destroy((err) => {

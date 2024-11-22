@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Button } from "./components/ui/button";
 
 const PinList = () => {
   const [pins, setPins] = useState([]);
@@ -48,9 +49,9 @@ const PinList = () => {
             />
 
             {/* Button appears on hover */}
-            <button className="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-[#E60023] text-white rounded-full px-4 py-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+            <Button className="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-[#E60023] text-white rounded-full px-4 py-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
               Action
-            </button>
+            </Button>
           </div>
         ))}
       </div>

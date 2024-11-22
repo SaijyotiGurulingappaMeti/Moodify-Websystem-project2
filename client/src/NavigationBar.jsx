@@ -1,6 +1,7 @@
 import { BounceLoader } from "react-spinners";
 import LogoutButton from "./LogoutButton";
 import { useEffect, useState } from "react";
+import UserDropdown from "./UserDropdown";
 
 const NavigationBar = () => {
   const [userInfo, setUserInfo] = useState(null);
@@ -48,7 +49,7 @@ const NavigationBar = () => {
   }
   return (
     <div className="w-full">
-      <nav className="w-full flex justify-between items-center px-6 py-4 bg-gray-100 border-b border-gray-300">
+      <nav className="fixed z-10 w-full flex justify-between items-center px-6 py-4 bg-gray-100 border-b border-gray-300">
         {/* Left: Logout Button */}
         <LogoutButton />
         <div className="flex-1 text-center">
@@ -59,14 +60,15 @@ const NavigationBar = () => {
 
         {/* Right: Username and Profile Picture */}
         <div className="flex items-center space-x-4">
-          <span className="text-sm font-medium text-gray-800 ">
+          {/* <span className="text-sm font-medium text-gray-800 ">
             Welcome, {userInfo.username}
-          </span>
+          </span> */}
           <img
             src={userInfo.profile_image}
             alt={`${userInfo.username}'s profile`}
             className="w-10 h-10 rounded-full object-cover"
           />
+          <UserDropdown name={userInfo.username} />
         </div>
       </nav>
     </div>

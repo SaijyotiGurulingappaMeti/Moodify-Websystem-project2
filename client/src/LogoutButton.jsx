@@ -53,7 +53,7 @@ const LogoutButton = () => {
       </Button>
 
       <AlertDialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <AlertDialogContent>
+        <AlertDialogContent className="bg-gray-800 border-0">
           <AlertDialogHeader>
             <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
             <AlertDialogDescription>
@@ -61,9 +61,11 @@ const LogoutButton = () => {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel onClick={closeDialog}>Cancel</AlertDialogCancel>
+            <AlertDialogCancel onClick={closeDialog} className="rounded-xl">
+              Cancel
+            </AlertDialogCancel>
             <AlertDialogAction onClick={handleLogout}>
-              <div className="bg-[#E60023] hover:bg-[#ad001b] text-white p-2 rounded-lg">
+              <div className="bg-[#E60023] hover:bg-[#ad001b] text-white p-2 rounded-xl">
                 Yes, Logout
               </div>
             </AlertDialogAction>
