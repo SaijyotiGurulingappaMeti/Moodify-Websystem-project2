@@ -3,6 +3,7 @@ const axios = require("axios");
 const cors = require("cors");
 const qs = require("querystring");
 const session = require("express-session");
+const { db } = require("./config/firebaseConfig");
 require("dotenv").config();
 const app = express();
 
@@ -87,6 +88,27 @@ app.get("/auth/userinfo", async (req, res) => {
         },
       }
     );
+    const { id, username, profile_image } = userResponse.data;
+    console.log("User ID:", id);
+    console.log("Data to save to Firestore:", { username, profile_image });
+    console.log("Profile image type:", typeof profile_image);
+
+    // Validate ID format (Firestore can have issues with certain characters)
+    if (typeof id !== "string" || id.length === 0) {
+      console.error("Invalid user ID:", id);
+      return res.status(400).send("Invalid user ID");
+    }
+
+    try {
+      const userRef = db.collection("users").doc(id.toString());
+      await userRef.set({
+        username: username,
+        profile_image: profile_image,
+      });
+      console.log("Saved succesfully");
+    } catch (error) {
+      console.error("Error saving user data to Firestore:", error.message);
+    }
 
     res.json(userResponse.data);
   } catch (error) {
