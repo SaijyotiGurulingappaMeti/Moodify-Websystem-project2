@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 import { Button } from "./components/ui/button";
+import { useUserInfo } from "./hooks/userInfo";
 
 const PinList = () => {
   const [pins, setPins] = useState([]);
   const [error, setError] = useState(null); // Initialize error state
-
+  const userInfo = useUserInfo();
   useEffect(() => {
     const fetchPins = async () => {
       try {
@@ -30,6 +31,33 @@ const PinList = () => {
 
     fetchPins();
   }, []);
+
+  const handleButtonClick = async (id, imageUrl, userId, username) => {
+    try {
+      const response = await fetch("http://localhost:4000/auth/sendPin", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          pinId: id,
+          imageUrl: imageUrl,
+          userId: userId,
+          username: username,
+        }),
+        credentials: "include",
+      });
+
+      if (response.ok) {
+        console.log("Pin sent successfully!");
+      } else {
+        console.error("Failed to send pin");
+      }
+    } catch (err) {
+      console.error("Error sending pin:", err);
+    }
+  };
+
   return (
     <div className="min-h-screen p-6">
       {/* Check if there is an error */}
@@ -49,7 +77,18 @@ const PinList = () => {
             />
 
             {/* Button appears on hover */}
-            <Button className="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-[#E60023] text-white rounded-full px-4 py-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+            <Button
+              onClick={() => {
+                handleButtonClick(
+                  pin.id,
+                  pin.imageUrl,
+                  userInfo.userInfo.id,
+                  userInfo.userInfo.username
+                );
+                console.log(pin.id);
+              }}
+              className="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-[#E60023] text-white rounded-full px-4 py-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+            >
               Action
             </Button>
           </div>

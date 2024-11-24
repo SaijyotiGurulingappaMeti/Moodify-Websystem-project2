@@ -1,33 +1,35 @@
 import { BounceLoader } from "react-spinners";
 import LogoutButton from "./LogoutButton";
-import { useEffect, useState } from "react";
+// import { useEffect, useState } from "react";
 import UserDropdown from "./UserDropdown";
+import { useUserInfo } from "@/hooks/userInfo";
 
 const NavigationBar = () => {
-  const [userInfo, setUserInfo] = useState(null);
-  const [error, setError] = useState(null);
+  // const [userInfo, setUserInfo] = useState(null);
+  // const [error, setError] = useState(null);
 
-  useEffect(() => {
-    const fetchUserInfo = async () => {
-      try {
-        const response = await fetch("http://localhost:4000/auth/userinfo", {
-          credentials: "include", // Include credentials for session-based auth
-        });
+  // useEffect(() => {
+  //   const fetchUserInfo = async () => {
+  //     try {
+  //       const response = await fetch("http://localhost:4000/auth/userinfo", {
+  //         credentials: "include", // Include credentials for session-based auth
+  //       });
 
-        if (!response.ok) {
-          throw new Error("Failed to fetch user info");
-        }
+  //       if (!response.ok) {
+  //         throw new Error("Failed to fetch user info");
+  //       }
 
-        const data = await response.json();
-        setUserInfo(data);
-      } catch (err) {
-        setError(err.message);
-      }
-    };
+  //       const data = await response.json();
+  //       setUserInfo(data);
+  //     } catch (err) {
+  //       setError(err.message);
+  //     }
+  //   };
 
-    fetchUserInfo();
-  }, []);
+  //   fetchUserInfo();
+  // }, []);
 
+  const { userInfo, error } = useUserInfo();
   if (error) {
     return <div>Error: {error}</div>;
   }
