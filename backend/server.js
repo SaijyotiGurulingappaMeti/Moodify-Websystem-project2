@@ -173,47 +173,73 @@ app.get("/auth/pins", async (req, res) => {
 });
 //Vision api implementation
 app.post("/auth/sendPin", async (req, res) => {
-  const { pinId, imageUrl } = req.body;
+  const { pinId, imageUrl, userId, username } = req.body;
   console.log("Received request body:", req.body);
+
+  // Map of likelihood values to numerical scores
+  const likelihoodMap = {
+    VERY_LIKELY: 5,
+    LIKELY: 4,
+    POSSIBLE: 3,
+    UNLIKELY: 2,
+    VERY_UNLIKELY: 1,
+  };
+
   try {
     const [result] = await client.faceDetection(imageUrl);
     const faces = result.faceAnnotations;
+
     if (faces.length === 0) {
-      console.log("no faces detected");
+      console.log("No faces detected");
       return res.status(200).json({
         message: "No faces detected",
         emotion: null,
       });
     }
 
-    const emotions = faces.map((face) => {
-      const joyLikelihood = face.joyLikelihood;
-      const sorrowLikelihood = face.sorrowLikelihood;
-      const angerLikelihood = face.angerLikelihood;
-      const surpriseLikelihood = face.surpriseLikelihood;
+    // Extract likelihoods for emotions
+    const face = faces[0]; // Taking the first detected face
+    const emotions = {
+      joy: likelihoodMap[face.joyLikelihood] || 0,
+      sorrow: likelihoodMap[face.sorrowLikelihood] || 0,
+      anger: likelihoodMap[face.angerLikelihood] || 0,
+      surprise: likelihoodMap[face.surpriseLikelihood] || 0,
+    };
 
-      // You can use these likelihoods to determine the emotion
-      // (Note: Google Vision gives a likelihood scale, e.g., VERY_LIKELY, LIKELY, etc.)
-      return {
-        joy: joyLikelihood,
-        sorrow: sorrowLikelihood,
-        anger: angerLikelihood,
-        surprise: surpriseLikelihood,
-      };
-    });
-    console.log(emotions[0]);
-    // Return the emotion details
+    // Determine the most probable emotion
+    const mostProbableEmotion = Object.keys(emotions).reduce((a, b) =>
+      emotions[a] > emotions[b] ? a : b
+    );
+
+    console.log("Most probable emotion:", mostProbableEmotion);
+    try {
+      const emoRef = db.collection("pin-emotion").doc(pinId.toString());
+      await emoRef.set({
+        imageUrl: imageUrl,
+        userId: userId,
+        username: username,
+        emotion: mostProbableEmotion,
+      });
+      console.log("Saved pin info successfully");
+    } catch (error) {
+      console.error(
+        "Error saving pin emotion data to Firestore:",
+        error.message
+      );
+    }
+    // Return the most probable emotion
     res.status(200).json({
       message: "Emotion detected",
-      emotion: emotions[0], // Assuming you just want to send the first face's emotion data
+      mostProbableEmotion,
     });
   } catch (err) {
-    console.log(err);
+    console.error(err);
     res
       .status(500)
       .json({ message: "Error processing the image", error: err.message });
   }
 });
+
 //Logout functionality
 app.get("/auth/logout", (req, res) => {
   if (req.session) {
