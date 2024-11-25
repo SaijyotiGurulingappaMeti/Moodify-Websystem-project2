@@ -1,11 +1,14 @@
 import { useEffect, useState } from "react";
 import { Button } from "./components/ui/button";
 import { useUserInfo } from "./hooks/userInfo";
+import { useNavigate } from "react-router-dom";
 
 const PinList = () => {
   const [pins, setPins] = useState([]);
   const [error, setError] = useState(null); // Initialize error state
   const userInfo = useUserInfo();
+  const navigate = useNavigate();
+
   useEffect(() => {
     const fetchPins = async () => {
       try {
@@ -50,6 +53,11 @@ const PinList = () => {
 
       if (response.ok) {
         console.log("Pin sent successfully!");
+
+        const data = await response.json();
+        navigate(
+          `/genre?pinId=${id}&userId=${userId}&username=${username}&imageUrl=${imageUrl}&emotion=${data.mostProbableEmotion}`
+        );
       } else {
         console.error("Failed to send pin");
       }

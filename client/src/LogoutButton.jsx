@@ -27,11 +27,10 @@ const LogoutButton = () => {
       // Make a request to the server to log out
       const response = await fetch("http://localhost:4000/auth/logout", {
         method: "GET",
-        credentials: "include", // Include cookies in the request
+        credentials: "include",
       });
 
       if (response.ok) {
-        // Redirect to the homepage after successful logout
         window.location.href = "http://localhost:5173/";
       } else {
         console.error("Failed to log out:", response.statusText);
@@ -39,7 +38,7 @@ const LogoutButton = () => {
     } catch (error) {
       console.error("Error during logout:", error);
     } finally {
-      setIsDialogOpen(false); // Close the dialog
+      setIsDialogOpen(false);
     }
   };
 
