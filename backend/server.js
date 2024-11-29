@@ -6,6 +6,7 @@ const cors = require("cors");
 const qs = require("querystring");
 const session = require("express-session");
 const { db } = require("./config/firebaseConfig");
+const { GoogleGenerativeAI } = require("@google/generative-ai");
 
 require("dotenv").config();
 
@@ -25,11 +26,178 @@ app.use(
 const CLIENT_ID = process.env.PINTEREST_CLIENT_ID;
 const CLIENT_SECRET = process.env.PINTEREST_CLIENT_SECRET;
 const REDIRECT_URI = "http://localhost:4000/auth/callback";
-
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_CREDENTIALS);
+const SPOTIFY_CLIENT_ID = process.env.SPOTIFY_CLIENT_ID;
+const SPOTIFY_CLIENT_SECRET = process.env.SPOTIFY_CLIENT_SECRET;
+let spotifyAccessToken = null;
 let accessToken = null;
+
 const credentials = Buffer.from(`${CLIENT_ID}:${CLIENT_SECRET}`).toString(
   "base64"
 );
+//get spotify access token
+
+const getSpotifyAccessToken = async () => {
+  if (spotifyAccessToken) return spotifyAccessToken;
+
+  const response = await axios.post(
+    "https://accounts.spotify.com/api/token",
+    new URLSearchParams({ grant_type: "client_credentials" }),
+    {
+      headers: {
+        Authorization:
+          "Basic " +
+          Buffer.from(SPOTIFY_CLIENT_ID + ":" + SPOTIFY_CLIENT_SECRET).toString(
+            "base64"
+          ),
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+    }
+  );
+
+  spotifyAccessToken = response.data.access_token;
+  return spotifyAccessToken;
+};
+
+//get music atttributes
+const getMusicAttribute = async (emotion) => {
+  model = genAI.getGenerativeModel({ model: "gemini-pro" });
+
+  const prompt = `For emotion "${emotion}", provide the following in a strict JSON object format:
+{
+  "min_acousticness": <value>,
+  "max_acousticness": <value>,
+  "target_acousticness": <value>,
+  "min_danceability": <value>,
+  "max_danceability": <value>,
+  "target_danceability": <value>,
+  "min_energy": <value>,
+  "max_energy": <value>,
+  "target_energy": <value>,
+  "min_tempo": <value>,
+  "max_tempo": <value>,
+  "target_tempo": <value>
+}`;
+
+  const result = await model.generateContent(prompt);
+  const response = await result.response;
+  const text = await response.text();
+  console.log("Raw output:", text);
+  try {
+    // Extract JSON substring from text
+    const jsonStart = text.indexOf("{");
+    const jsonEnd = text.lastIndexOf("}");
+    if (jsonStart === -1 || jsonEnd === -1) {
+      throw new Error("No JSON object found in response");
+    }
+
+    const jsonString = text.substring(jsonStart, jsonEnd + 1);
+    const attributes = JSON.parse(jsonString);
+    console.log("Parsed attributes:", attributes);
+    return attributes;
+  } catch (error) {
+    console.error("Error parsing attributes:", error);
+    throw new Error("Failed to parse attributes from generative model");
+  }
+};
+//get music recommendations
+
+const getMusicRecommendations = async (genre, attributes) => {
+  const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+
+  const prompt = `Given the following attributes:
+  ${JSON.stringify(attributes)}
+  and the genre "${genre}", recommend 5 Spotify songs. Return in strict JSON format:
+  [
+    {
+      "title": "<song title>",
+      "artist": "<artist name>",
+      "album": "<album name>",
+      "spotify_id": "<Spotify track ID>"
+    },
+    ...
+  ]`;
+  const result = await model.generateContent(prompt);
+  const response = await result.response;
+  const text = await response.text();
+  console.log("Raw output:", text);
+
+  try {
+    const jsonStart = text.indexOf("[");
+    const jsonEnd = text.lastIndexOf("]");
+    if (jsonStart === -1 || jsonEnd === -1) {
+      throw new Error("No JSON array found in response");
+    }
+
+    const jsonString = text.substring(jsonStart, jsonEnd + 1);
+    const recommendations = JSON.parse(jsonString);
+    console.log("Parsed recommendations:", recommendations);
+    return recommendations;
+  } catch (error) {
+    console.error("Error parsing recommendations:", error);
+    throw new Error("Failed to parse recommendations from generative model");
+  }
+};
+
+//get spotify tracks
+const getSpotifyTracks = async (recommendations) => {
+  try {
+    const accessToken = await getSpotifyAccessToken();
+
+    const trackRequests = recommendations.map(async (rec) => {
+      const url = new URL("https://api.spotify.com/v1/search");
+      const query = `${rec.title} ${rec.artist}`;
+
+      url.searchParams.append("q", query);
+      url.searchParams.append("type", "track");
+      url.searchParams.append("limit", "1");
+
+      const response = await fetch(url.toString(), {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+
+      if (!response.ok) {
+        console.error(
+          `Error fetching track for query "${query}": ${response.statusText}`
+        );
+        return null; // Handle gracefully by returning null
+      }
+
+      const data = await response.json();
+
+      // Check if the response contains tracks
+      const track = data?.tracks?.items?.[0];
+      if (!track) {
+        console.error(`No track found for query "${query}"`);
+        return null;
+      }
+
+      return {
+        title: track.name || "Unknown Title",
+        artist:
+          track.artists?.map((artist) => artist.name).join(", ") ||
+          "Unknown Artist",
+        album: track.album?.name || "Unknown Album",
+        url: track.external_urls?.spotify || "#",
+      };
+    });
+
+    const tracks = await Promise.all(trackRequests);
+
+    // Filter out null responses
+    const validTracks = tracks.filter(Boolean);
+
+    console.log("Fetched Spotify tracks:", validTracks);
+
+    return validTracks;
+  } catch (error) {
+    console.error("Error fetching Spotify tracks:", error);
+    throw new Error("Failed to fetch tracks from Spotify");
+  }
+};
 
 //login function
 
@@ -237,6 +405,22 @@ app.post("/auth/sendPin", async (req, res) => {
     res
       .status(500)
       .json({ message: "Error processing the image", error: err.message });
+  }
+});
+
+//fetch musicAttributes
+app.post("/auth/musicAttribute", async (req, res) => {
+  const { emotion, pinId, userId, username, imageUrl, genre } = req.body;
+  console.log(req.body);
+
+  try {
+    const attributes = await getMusicAttribute(emotion);
+    const recommendations = await getMusicRecommendations(genre, attributes);
+    const spotifyTracks = await getSpotifyTracks(recommendations);
+    res.status(200).json({ tracks: spotifyTracks });
+  } catch (error) {
+    console.error("Error in recommending music:", error);
+    res.status(500).json({ error: "Failed to recommend music" });
   }
 });
 

@@ -13,8 +13,32 @@ import { Label } from "./components/ui/label";
 const GenrePage = () => {
   const [selectedGenre, setSelectedGenre] = useState("rock");
 
-  const handleSubmit = () => {
-    alert(`Selected Genre: ${selectedGenre}`);
+  const handleSubmit = (genre) => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const pinId = urlParams.get("pinId");
+    const userId = urlParams.get("userId");
+    const username = urlParams.get("username");
+    const imageUrl = urlParams.get("imageUrl");
+    const emotion = urlParams.get("emotion");
+    console.log(pinId, emotion);
+
+    fetch("http://localhost:4000/auth/musicAttribute", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        pinId,
+        userId,
+        username,
+        imageUrl,
+        emotion,
+        genre,
+      }),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        console.log(data);
+      })
+      .catch((error) => console.error("Error:", error));
   };
 
   const genres = ["rock", "pop", "country", "classical", "jazz"];
@@ -39,7 +63,7 @@ const GenrePage = () => {
         </CardContent>
         <CardFooter>
           <Button
-            onClick={handleSubmit}
+            onClick={() => handleSubmit(selectedGenre)}
             className="bg-red-600 text-white hover:bg-red-700 rounded-xl"
           >
             Submit
