@@ -163,7 +163,7 @@ const getSpotifyTracks = async (recommendations) => {
         console.error(
           `Error fetching track for query "${query}": ${response.statusText}`
         );
-        return null; // Handle gracefully by returning null
+        return null;
       }
 
       const data = await response.json();
@@ -176,6 +176,7 @@ const getSpotifyTracks = async (recommendations) => {
       }
 
       return {
+        id: track.id,
         title: track.name || "Unknown Title",
         artist:
           track.artists?.map((artist) => artist.name).join(", ") ||
@@ -186,8 +187,6 @@ const getSpotifyTracks = async (recommendations) => {
     });
 
     const tracks = await Promise.all(trackRequests);
-
-    // Filter out null responses
     const validTracks = tracks.filter(Boolean);
 
     console.log("Fetched Spotify tracks:", validTracks);
@@ -408,6 +407,27 @@ app.post("/auth/sendPin", async (req, res) => {
   }
 });
 
+//check if spotify tracks already present in backend
+app.post("/auth/checkPin", async (req, res) => {
+  const { pinId, userId } = req.body;
+
+  try {
+    const customId = `${pinId}_${userId}`;
+
+    // Check if the document already exists in Firestore
+    const doc = await db.collection("PinUserSpotifyTracks").doc(customId).get();
+
+    if (doc.exists) {
+      res.status(200).json({ exists: true });
+    } else {
+      res.status(200).json({ exists: false });
+    }
+  } catch (err) {
+    console.error("Error checking pin existence:", err);
+    res.status(500).json({ error: "Failed to check pin existence" });
+  }
+});
+
 //fetch musicAttributes
 app.post("/auth/musicAttribute", async (req, res) => {
   const { emotion, pinId, userId, username, imageUrl, genre } = req.body;
@@ -417,7 +437,27 @@ app.post("/auth/musicAttribute", async (req, res) => {
     const attributes = await getMusicAttribute(emotion);
     const recommendations = await getMusicRecommendations(genre, attributes);
     const spotifyTracks = await getSpotifyTracks(recommendations);
-    res.status(200).json({ tracks: spotifyTracks });
+
+    const trackData = spotifyTracks.map((track) => ({
+      id: track.id,
+      name: track.title,
+      artist: track.artist,
+      url: track.url,
+    }));
+
+    const customId = `${pinId}_${userId}`;
+    // Save to Firestore
+    await db.collection("PinUserSpotifyTracks").doc(customId).set({
+      pinId,
+      userId,
+      imageUrl,
+      spotifyTracks: trackData,
+      genre,
+    });
+
+    res
+      .status(200)
+      .json({ pinId, userId, imageUrl, tracks: spotifyTracks, genre });
   } catch (error) {
     console.error("Error in recommending music:", error);
     res.status(500).json({ error: "Failed to recommend music" });
