@@ -471,7 +471,6 @@ app.get("/auth/musicAttribute/:pinId/:userId", async (req, res) => {
 
   try {
     const doc = await db.collection("PinUserSpotifyTracks").doc(customId).get();
-    console.log("music data:", doc);
     if (!doc.exists) {
       return res
         .status(404)

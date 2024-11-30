@@ -9,9 +9,11 @@ import {
 import { RadioGroup, RadioGroupItem } from "./components/ui/radio-group";
 import { Button } from "./components/ui/button";
 import { Label } from "./components/ui/label";
+import { useNavigate } from "react-router-dom";
 
 const GenrePage = () => {
   const [selectedGenre, setSelectedGenre] = useState("rock");
+  const navigate = useNavigate();
 
   const handleSubmit = (genre) => {
     const urlParams = new URLSearchParams(window.location.search);
@@ -37,6 +39,7 @@ const GenrePage = () => {
       .then((response) => response.json())
       .then((data) => {
         console.log(data);
+        navigate(`/results?pinId=${pinId}&userId=${userId}`);
       })
       .catch((error) => console.error("Error:", error));
   };
