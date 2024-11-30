@@ -29,6 +29,10 @@ const UserDropdown = ({ name }) => {
         <DropdownMenuItem onClick={handleHistoryClick}>
           History
         </DropdownMenuItem>
+        <DropdownMenuSeparator className="bg-gray-200" />
+        <DropdownMenuItem>
+          DashBoard
+        </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );
