@@ -2,10 +2,12 @@ import { useEffect, useState } from "react";
 import { Button } from "./components/ui/button";
 import { useUserInfo } from "./hooks/userInfo";
 import { useNavigate } from "react-router-dom";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const PinList = () => {
   const [pins, setPins] = useState([]);
-  const [error, setError] = useState(null); // Initialize error state
+  const [error, setError] = useState(null);
   const userInfo = useUserInfo();
   const navigate = useNavigate();
 
@@ -16,15 +18,13 @@ const PinList = () => {
           credentials: "include",
         });
 
-        // Parse the JSON response
         const data = await response.json();
 
-        // Ensure data is an array
         if (Array.isArray(data)) {
           setPins(data);
         } else {
           console.error("Fetched data is not an array", data);
-          setPins([]); // Handle the case where the data is not an array
+          setPins([]);
         }
       } catch (err) {
         setError("Failed to load pins. Please try again.");
@@ -35,7 +35,6 @@ const PinList = () => {
     fetchPins();
   }, []);
 
-  // Function to check if the pin and user data already exists in Firestore
   const checkIfPinAlreadyExists = async (pinId, userId) => {
     try {
       const response = await fetch("http://localhost:4000/auth/checkPin", {
@@ -68,8 +67,7 @@ const PinList = () => {
       const pinExists = await checkIfPinAlreadyExists(id, userId);
 
       if (pinExists) {
-        // If the data already exists, navigate to the history page
-        alert("This pin has already been processed.");
+        toast.info("This pin has already been processed.");
       } else {
         const response = await fetch("http://localhost:4000/auth/sendPin", {
           method: "POST",
@@ -86,23 +84,33 @@ const PinList = () => {
         });
 
         if (response.ok) {
-          console.log("Pin sent successfully!");
-
           const data = await response.json();
-          navigate(
-            `/genre?pinId=${id}&userId=${userId}&username=${username}&imageUrl=${imageUrl}&emotion=${data.mostProbableEmotion}`
-          );
+
+          if (
+            data.message ===
+              "No faces detected or very low accurate data, please choose another picture" ||
+            data.message === "No faces detected" ||
+            data.emotion === null
+          ) {
+            toast.error(data.message);
+          } else {
+            navigate(
+              `/genre?pinId=${id}&userId=${userId}&username=${username}&imageUrl=${imageUrl}&emotion=${data.mostProbableEmotion}`
+            );
+          }
         } else {
-          console.error("Failed to send pin");
+          toast.error("Failed to send pin.");
         }
       }
     } catch (err) {
+      toast.error("Error handling button click. Please try again.");
       console.error("Error handling button click:", err);
     }
   };
 
   return (
     <div className="min-h-screen p-6">
+      <ToastContainer position="bottom-right" autoClose={5000} />
       {error && <p className="text-red-500 text-center mb-4">{error}</p>}
 
       <div className="columns-1 sm:columns-2 md:columns-3 lg:columns-4 xl:columns-5 gap-6">

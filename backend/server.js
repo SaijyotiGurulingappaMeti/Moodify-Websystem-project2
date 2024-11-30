@@ -339,6 +339,7 @@ app.get("/auth/pins", async (req, res) => {
     }
   }
 });
+
 //Vision api implementation
 app.post("/auth/sendPin", async (req, res) => {
   const { pinId, imageUrl, userId, username } = req.body;
@@ -378,6 +379,16 @@ app.post("/auth/sendPin", async (req, res) => {
     const mostProbableEmotion = Object.keys(emotions).reduce((a, b) =>
       emotions[a] > emotions[b] ? a : b
     );
+
+    // Check if the most probable emotion is VERY_UNLIKELY
+    if (emotions[mostProbableEmotion] === 1) {
+      console.log("Emotion likelihood is VERY_UNLIKELY");
+      return res.status(200).json({
+        message:
+          "No faces detected or very low accurate data, please choose another picture",
+        emotion: null,
+      });
+    }
 
     console.log("Most probable emotion:", mostProbableEmotion);
     try {
