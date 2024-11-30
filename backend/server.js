@@ -464,6 +464,28 @@ app.post("/auth/musicAttribute", async (req, res) => {
   }
 });
 
+//fetch the pin spotify data
+app.get("/auth/musicAttribute/:pinId/:userId", async (req, res) => {
+  const { pinId, userId } = req.params;
+  const customId = `${pinId}_${userId}`;
+
+  try {
+    const doc = await db.collection("PinUserSpotifyTracks").doc(customId).get();
+    console.log("music data:", doc);
+    if (!doc.exists) {
+      return res
+        .status(404)
+        .json({ error: "No data found for this pin and user" });
+    }
+
+    res.status(200).json(doc.data());
+  } catch (error) {
+    console.error("Error retrieving music data :", error);
+    res.status(500).json({ error: "Failed to retrieve the music data" });
+  }
+});
+//delete the pin spotify data
+
 //Logout functionality
 app.get("/auth/logout", (req, res) => {
   if (req.session) {
