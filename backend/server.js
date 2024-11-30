@@ -407,31 +407,33 @@ app.post("/auth/sendPin", async (req, res) => {
   }
 });
 
+//check if spotify tracks already present in backend
+app.post("/auth/checkPin", async (req, res) => {
+  const { pinId, userId } = req.body;
+
+  try {
+    const customId = `${pinId}_${userId}`;
+
+    // Check if the document already exists in Firestore
+    const doc = await db.collection("PinUserSpotifyTracks").doc(customId).get();
+
+    if (doc.exists) {
+      res.status(200).json({ exists: true });
+    } else {
+      res.status(200).json({ exists: false });
+    }
+  } catch (err) {
+    console.error("Error checking pin existence:", err);
+    res.status(500).json({ error: "Failed to check pin existence" });
+  }
+});
+
 //fetch musicAttributes
 app.post("/auth/musicAttribute", async (req, res) => {
   const { emotion, pinId, userId, username, imageUrl, genre } = req.body;
   console.log(req.body);
 
   try {
-    const customId = `${pinId}_${userId}`;
-
-    // Check if the document already exists
-    const existingDoc = await db
-      .collection("PinUserSpotifyTracks")
-      .doc(customId)
-      .get();
-
-    if (existingDoc.exists) {
-      // If the document already exists, send back the existing data without saving again
-      return res.status(200).json({
-        pinId,
-        userId,
-        imageUrl,
-        tracks: existingDoc.data().spotifyTracks,
-        genre,
-      });
-    }
-
     const attributes = await getMusicAttribute(emotion);
     const recommendations = await getMusicRecommendations(genre, attributes);
     const spotifyTracks = await getSpotifyTracks(recommendations);
@@ -443,6 +445,7 @@ app.post("/auth/musicAttribute", async (req, res) => {
       url: track.url,
     }));
 
+    const customId = `${pinId}_${userId}`;
     // Save to Firestore
     await db.collection("PinUserSpotifyTracks").doc(customId).set({
       pinId,
