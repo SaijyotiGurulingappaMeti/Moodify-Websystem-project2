@@ -7,6 +7,7 @@ const qs = require("querystring");
 const session = require("express-session");
 const { db } = require("./config/firebaseConfig");
 const { GoogleGenerativeAI } = require("@google/generative-ai");
+const { messaging } = require("firebase-admin");
 
 require("dotenv").config();
 
@@ -483,7 +484,31 @@ app.get("/auth/musicAttribute/:pinId/:userId", async (req, res) => {
     res.status(500).json({ error: "Failed to retrieve the music data" });
   }
 });
-//delete the pin spotify data
+//history page
+app.get("/auth/history/:userId", async (req, res) => {
+  const { userId } = req.params;
+
+  try {
+    const snapshot = await db
+      .collection("PinUserSpotifyTracks")
+      .where("userId", "==", userId)
+      .get();
+
+    if (snapshot.empty) {
+      return res.status(404).json({ message: "No pins found" });
+    }
+
+    const pins = snapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
+
+    res.status(200).json(pins);
+  } catch (error) {
+    console.error("Error in fetching history data:", error);
+    res.status(500).send({ error: "Failed to fetch the history data" });
+  }
+});
 
 //Logout functionality
 app.get("/auth/logout", (req, res) => {
