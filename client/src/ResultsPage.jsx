@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
+import { Card, CardContent } from "./components/ui/card";
 
 const ResultsPage = () => {
   const location = useLocation();
@@ -36,33 +37,45 @@ const ResultsPage = () => {
   if (error) return <p>Error: {error}</p>;
 
   return (
-    <div className="flex flex-col items-center p-4 font-geist">
-      <img
-        src={data.imageUrl}
-        alt="Recommendation"
-        className="rounded-lg w-96 mb-4"
-      />
-      <h2 className="text-2xl font-bold mb-4">Recommended Tracks</h2>
-      <ul className="w-full max-w-md">
+    <div className="flex items-center justify-center p-8 gap-8 font-geist bg-gray-900 min-h-screen">
+    {/* Left Side: Image in a Card */}
+    <Card className="flex-shrink-0 w-96 shadow-lg bg-white mt-14">
+      <CardContent className="p-4">
+        <img
+          src={data.imageUrl}
+          alt="Recommendation"
+          className="rounded-xl w-full"
+        />
+      </CardContent>
+    </Card>
+
+    {/* Right Side: Recommended Tracks */}
+    <div className="flex flex-col w-full max-w-3xl">
+      <h2 className="text-3xl font-bold mb-6 text-red-600 text-center">
+        Recommended Tracks - {data.genre}
+      </h2>
+      <ul className="w-full space-y-4">
         {data.spotifyTracks.map((track) => (
-          <li
-            key={track.id}
-            className="p-2 bg-gray-100 rounded-lg mb-2 shadow-md"
-          >
-            <p className="font-bold">{track.name}</p>
-            <p>Artist: {track.artist}</p>
-            <a
-              href={track.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-blue-500 hover:underline"
-            >
-              Listen on Spotify
-            </a>
-          </li>
+          <Card key={track.id} className="w-full max-w-xl shadow-md bg-white mx-auto">
+            <CardContent>
+              <p className="font-bold text-lg text-red-600">{track.name}</p>
+              <p className="text-gray-600">
+                <span className="font-semibold">Artist:</span> {track.artist}
+              </p>
+              <a
+                href={track.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-500 hover:underline"
+              >
+                Listen on Spotify
+              </a>
+            </CardContent>
+          </Card>
         ))}
       </ul>
     </div>
+  </div>
   );
 };
 
