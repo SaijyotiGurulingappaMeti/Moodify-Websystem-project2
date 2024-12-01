@@ -4,16 +4,19 @@ import { useUserInfo } from "./hooks/userInfo";
 import { useNavigate } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import Loader from "./Loader";
 
 const PinList = () => {
   const [pins, setPins] = useState([]);
   const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(true); // Loading state
   const userInfo = useUserInfo();
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetchPins = async () => {
       try {
+        setLoading(true); // Start loading
         const response = await fetch("http://localhost:4000/auth/pins", {
           credentials: "include",
         });
@@ -29,6 +32,8 @@ const PinList = () => {
       } catch (err) {
         setError("Failed to load pins. Please try again.");
         console.error(err);
+      } finally {
+        setLoading(false); // Stop loading
       }
     };
 
@@ -68,6 +73,7 @@ const PinList = () => {
 
       if (pinExists) {
         toast.info("This pin has already been processed.");
+        navigate(`/results?pinId=${id}&userId=${userId}`);
       } else {
         const response = await fetch("http://localhost:4000/auth/sendPin", {
           method: "POST",
@@ -111,37 +117,46 @@ const PinList = () => {
   return (
     <div className="min-h-screen p-6">
       <ToastContainer position="bottom-right" autoClose={5000} />
-      {error && <p className="text-red-500 text-center mb-4">{error}</p>}
 
-      <div className="columns-1 sm:columns-2 md:columns-3 lg:columns-4 xl:columns-5 gap-6">
-        {pins.map((pin) => (
-          <div
-            key={pin.id}
-            className="bg-black shadow-md rounded-xl overflow-hidden mb-6 break-inside-avoid-column relative group"
-          >
-            <img
-              src={pin.imageUrl}
-              alt={pin.title}
-              className="w-full h-auto object-cover rounded-t-xl transition-opacity duration-300 group-hover:opacity-50"
-            />
-
-            <Button
-              onClick={() => {
-                handleButtonClick(
-                  pin.id,
-                  pin.imageUrl,
-                  userInfo.userInfo.id,
-                  userInfo.userInfo.username
-                );
-                console.log(pin.id);
-              }}
-              className="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-[#E60023] text-white rounded-full px-4 py-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+      {loading ? (
+        <>
+          <Loader />
+        </>
+      ) : error ? (
+        <p className="text-red-500 text-center mb-4">{error}</p>
+      ) : pins.length === 0 ? (
+        <p className="text-gray-500 text-center mb-4">No pins yet!</p>
+      ) : (
+        <div className="columns-1 sm:columns-2 md:columns-3 lg:columns-4 xl:columns-5 gap-6">
+          {pins.map((pin) => (
+            <div
+              key={pin.id}
+              className="bg-black shadow-md rounded-xl overflow-hidden mb-6 break-inside-avoid-column relative group"
             >
-              Action
-            </Button>
-          </div>
-        ))}
-      </div>
+              <img
+                src={pin.imageUrl}
+                alt={pin.title}
+                className="w-full h-auto object-cover rounded-t-xl transition-opacity duration-300 group-hover:opacity-50"
+              />
+
+              <Button
+                onClick={() => {
+                  handleButtonClick(
+                    pin.id,
+                    pin.imageUrl,
+                    userInfo.userInfo.id,
+                    userInfo.userInfo.username
+                  );
+                  console.log(pin.id);
+                }}
+                className="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-[#E60023] text-white rounded-full px-4 py-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+              >
+                Action
+              </Button>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 };

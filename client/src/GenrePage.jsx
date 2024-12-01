@@ -18,15 +18,15 @@ const GenrePage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
+  const urlParams = new URLSearchParams(window.location.search);
+  const pinId = urlParams.get("pinId");
+  const userId = urlParams.get("userId");
+  const username = urlParams.get("username");
+  const imageUrl = urlParams.get("imageUrl");
+  const emotion = urlParams.get("emotion");
+
   const handleSubmit = (genre) => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const pinId = urlParams.get("pinId");
-    const userId = urlParams.get("userId");
-    const username = urlParams.get("username");
-    const imageUrl = urlParams.get("imageUrl");
-    const emotion = urlParams.get("emotion");
-    console.log(pinId, emotion);
-    setIsLoading(true); 
+    setIsLoading(true);
     fetch("http://localhost:4000/auth/musicAttribute", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -52,42 +52,51 @@ const GenrePage = () => {
 
   return (
     <>
-    <NavigationBar />
-    <div className="flex justify-center items-center h-screen font-geist">
-      {isLoading ? (
-        <>
-        <Loader/>
-        </>
-      ) : (
-        <Card className="w-96 bg-white text-gray-900">
-          <CardHeader>
-            <CardTitle className="text-xl font-bold">Select the Genre</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <RadioGroup value={selectedGenre} onValueChange={setSelectedGenre}>
-              {genres.map((genre) => (
-                <div key={genre} className="flex items-center space-x-2">
-                  <RadioGroupItem value={genre} id={genre} />
-                  <Label htmlFor={genre}>
-                    {genre.charAt(0).toUpperCase() + genre.slice(1)}
-                  </Label>
-                </div>
-              ))}
-            </RadioGroup>
-          </CardContent>
-          <CardFooter>
-            <Button
-              onClick={() => handleSubmit(selectedGenre)}
-              className="bg-red-600 text-white hover:bg-red-700 rounded-xl"
-            >
-              Submit
-            </Button>
-          </CardFooter>
-        </Card>
-      )}
-    </div>
-  </>
-);
+      <NavigationBar />
+      <div className="flex justify-center items-center h-screen font-geist">
+        {isLoading ? (
+          <>
+            <Loader />
+          </>
+        ) : (
+          <Card className="w-96 bg-white text-gray-900">
+            <CardHeader>
+              <CardTitle className="text-xl font-bold">
+                Select the Genre
+              </CardTitle>
+              <p className="text-sm text-gray-600">
+                Emotion detected:{" "}
+                <span className="font-semibold">{emotion}</span>
+              </p>
+            </CardHeader>
+            <CardContent>
+              <RadioGroup
+                value={selectedGenre}
+                onValueChange={setSelectedGenre}
+              >
+                {genres.map((genre) => (
+                  <div key={genre} className="flex items-center space-x-2">
+                    <RadioGroupItem value={genre} id={genre} />
+                    <Label htmlFor={genre}>
+                      {genre.charAt(0).toUpperCase() + genre.slice(1)}
+                    </Label>
+                  </div>
+                ))}
+              </RadioGroup>
+            </CardContent>
+            <CardFooter>
+              <Button
+                onClick={() => handleSubmit(selectedGenre)}
+                className="bg-red-600 text-white hover:bg-red-700 rounded-xl"
+              >
+                Submit
+              </Button>
+            </CardFooter>
+          </Card>
+        )}
+      </div>
+    </>
+  );
 };
 
 export default GenrePage;
