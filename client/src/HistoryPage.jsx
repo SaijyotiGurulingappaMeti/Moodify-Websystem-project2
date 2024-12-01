@@ -69,11 +69,22 @@ const HistoryPage = () => {
   }
 
   // Return "No history found" if no pins are found
-  if (!pins.length) {
+  if (!pins.length || pins.length === 0) {
     return (
       <>
         <NavigationBar />
-        <div>No history found.</div>
+        <div className="flex flex-col items-center justify-center h-screen">
+          <Card className="p-4 bg-gray-100 text-center rounded-xl shadow-md">
+            <CardContent>
+              <h2 className="text-xl font-bold text-gray-700">
+                No History Found
+              </h2>
+              <p className="text-sm text-gray-500">
+                You haven't pinned any tracks yet. Start exploring!
+              </p>
+            </CardContent>
+          </Card>
+        </div>
       </>
     );
   }
