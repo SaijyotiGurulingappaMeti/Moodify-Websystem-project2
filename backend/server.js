@@ -386,18 +386,14 @@ app.post("/auth/sendPin", async (req, res) => {
     };
 
     // Determine the most probable emotion
-    const mostProbableEmotion = Object.keys(emotions).reduce((a, b) =>
+    let mostProbableEmotion = Object.keys(emotions).reduce((a, b) =>
       emotions[a] > emotions[b] ? a : b
     );
 
     // Check if the most probable emotion is VERY_UNLIKELY
     if (emotions[mostProbableEmotion] === 1) {
       console.log("Emotion likelihood is VERY_UNLIKELY");
-      return res.status(200).json({
-        message:
-          "No faces detected or very low accurate data, please choose another picture",
-        emotion: null,
-      });
+  mostProbableEmotion = "neutral"; // Set the emotion to neutral
     }
 
     console.log("Most probable emotion:", mostProbableEmotion);
