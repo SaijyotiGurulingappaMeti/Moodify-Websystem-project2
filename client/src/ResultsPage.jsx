@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { Card, CardContent } from "./components/ui/card";
 import NavigationBar from "./NavigationBar";
+import Loader from "./Loader";
 
 const ResultsPage = () => {
   const location = useLocation();
@@ -34,7 +35,7 @@ const ResultsPage = () => {
     fetchData();
   }, [pinId, userId]);
 
-  if (loading) return <p>Loading...</p>;
+  if (loading) return <><Loader/></>;
   if (error) return <p>Error: {error}</p>;
 
   return (
@@ -54,22 +55,22 @@ const ResultsPage = () => {
 
     {/* Right Side: Recommended Tracks */}
     <div className="flex flex-col w-full max-w-3xl">
-      <h2 className="text-3xl font-bold mb-6 text-red-600 text-center">
+      <h2 className="text-xl font-bold mb-3 text-red-600 text-center">
         Recommended Tracks - {data.genre}
       </h2>
-      <ul className="w-full space-y-4">
+      <ul className="w-full space-y-1">
         {data.spotifyTracks.map((track) => (
           <Card key={track.id} className="w-full max-w-xl shadow-md bg-white mx-auto">
-            <CardContent>
-              <p className="font-bold text-lg text-red-600">{track.name}</p>
-              <p className="text-gray-600">
-                <span className="font-semibold">Artist:</span> {track.artist}
+            <CardContent className="py-4">
+              <p className="font-bold text-sm text-red-600">{track.name}</p>
+              <p className="text-gray-600 text-sm">
+                <span className="font-semibold ">Artist:</span> {track.artist}
               </p>
               <a
                 href={track.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-blue-500 hover:underline"
+                className="text-blue-500 text-sm hover:underline"
               >
                 Listen on Spotify
               </a>

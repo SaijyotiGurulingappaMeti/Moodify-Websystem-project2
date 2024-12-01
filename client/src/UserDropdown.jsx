@@ -16,6 +16,10 @@ const UserDropdown = ({ name }) => {
     navigate("/history"); // Navigate to the History page
   };
 
+  const handleDashboardClick = ()=>{
+    navigate("/dashboard");
+  }
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger>
@@ -30,7 +34,7 @@ const UserDropdown = ({ name }) => {
           History
         </DropdownMenuItem>
         <DropdownMenuSeparator className="bg-gray-200" />
-        <DropdownMenuItem>
+        <DropdownMenuItem onClick={handleDashboardClick}>
           DashBoard
         </DropdownMenuItem>
       </DropdownMenuContent>
