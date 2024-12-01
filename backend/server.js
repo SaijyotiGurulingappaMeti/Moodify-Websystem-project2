@@ -497,13 +497,12 @@ app.get("/auth/musicAttribute/:pinId/:userId", async (req, res) => {
 });
 
 //delete the pin-spotify-tracks data
-app.delete("/auth/deleteTracks/:pinId/:userId", async (req, res) => {
-  const { pinId, userId } = req.params;
-  const customId = `${pinId}_${userId}`;
+app.delete("/auth/deleteTracks/:trackId", async (req, res) => {
+  const { trackId} = req.params;
 
   try {
     // Locate the document with the customId
-    const docRef = db.collection("PinUserSpotifyTracks").doc(customId);
+    const docRef = db.collection("PinUserSpotifyTracks").doc(trackId);
     const doc = await docRef.get();
 
     if (!doc.exists) {
@@ -519,6 +518,7 @@ app.delete("/auth/deleteTracks/:pinId/:userId", async (req, res) => {
       .status(200)
       .json({ message: "Data successfully deleted for the pinId and userId" });
   } catch (error) {
+    console.log(error);
     console.error("Error deleting music data:", error);
     res.status(500).json({ error: "Failed to delete the music data" });
   }
