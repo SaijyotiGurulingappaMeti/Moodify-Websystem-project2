@@ -89,14 +89,15 @@ const HistoryPage = () => {
           >
             <div className="p-4">
               {/* Pin Genre */}
-              <h2 className="text-xl font-bold text-red-600 mb-1 flex items-center space-x-2">
+              <h2 className="text-lg font-bold text-red-600 mb-2 flex items-center space-x-2">
                 <IoMdMusicalNotes />
                 <span>{pin.genre}</span>
               </h2>
 
-              <div className="flex items-center space-x-4">
+              {/* Grid Layout for Image and Tracks */}
+              <div className="grid grid-cols-[auto_1fr_auto] gap-4 items-center">
                 {/* Image Section */}
-                <div className="flex-shrink-0 w-32 h-32">
+                <div className="flex-shrink-0 w-24 h-24">
                   <img
                     src={pin.imageUrl}
                     alt={pin.genre}
@@ -105,31 +106,28 @@ const HistoryPage = () => {
                 </div>
 
                 {/* Songs Section */}
-                <div className="flex-grow">
-                  <ul className="space-y-2">
-                    {pin.spotifyTracks.map((track, index) => (
-                      <li key={track.id} className="text-gray-700">
-                        <a
-                          href={track.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-blue-500 hover:text-blue-700 hover:underline"
-                        >
-                          {track.name} by {track.artist}
-                        </a>
-                        {index < pin.spotifyTracks.length - 1 && (
-                          <span className="px-2">|</span>
-                        )}
-                      </li>
-                    ))}
-                  </ul>
+                <div className="flex flex-wrap gap-2">
+                  {pin.spotifyTracks.map((track, index) => (
+                    <a
+                      key={track.id}
+                      href={track.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-sm text-blue-500 hover:text-blue-700 hover:underline whitespace-nowrap"
+                    >
+                      {track.name} by {track.artist}
+                      {index < pin.spotifyTracks.length - 1 && (
+                        <span className="px-1">|</span>
+                      )}
+                    </a>
+                  ))}
                 </div>
 
                 {/* Delete Button Section */}
                 <div className="flex-shrink-0">
                   <Button
                     onClick={() => handleDelete(pin.id)}
-                    className="px-4 py-2 text-white bg-red-500 rounded-xl hover:bg-red-700"
+                    className="px-3 py-1 text-white bg-red-500 rounded-xl hover:bg-red-700"
                   >
                     Delete
                   </Button>
