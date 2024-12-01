@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { Card, CardContent } from "./components/ui/card";
+import NavigationBar from "./NavigationBar";
 
 const ResultsPage = () => {
   const location = useLocation();
@@ -37,6 +38,8 @@ const ResultsPage = () => {
   if (error) return <p>Error: {error}</p>;
 
   return (
+    <>
+    <NavigationBar />
     <div className="flex items-center justify-center p-8 gap-8 font-geist bg-gray-900 min-h-screen">
     {/* Left Side: Image in a Card */}
     <Card className="flex-shrink-0 w-96 shadow-lg bg-white mt-14">
@@ -76,6 +79,7 @@ const ResultsPage = () => {
       </ul>
     </div>
   </div>
+  </>
   );
 };
 
