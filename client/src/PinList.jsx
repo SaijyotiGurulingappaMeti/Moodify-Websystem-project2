@@ -124,6 +124,8 @@ const PinList = () => {
         </>
       ) : error ? (
         <p className="text-red-500 text-center mb-4">{error}</p>
+      ) : pins.length === 0 ? (
+        <p className="text-gray-500 text-center mb-4">No pins yet!</p>
       ) : (
         <div className="columns-1 sm:columns-2 md:columns-3 lg:columns-4 xl:columns-5 gap-6">
           {pins.map((pin) => (
