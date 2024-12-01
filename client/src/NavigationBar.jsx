@@ -1,8 +1,8 @@
-import { BounceLoader } from "react-spinners";
 import LogoutButton from "./LogoutButton";
 // import { useEffect, useState } from "react";
 import UserDropdown from "./UserDropdown";
 import { useUserInfo } from "@/hooks/userInfo";
+import Loader from "./Loader";
 
 const NavigationBar = () => {
   // const [userInfo, setUserInfo] = useState(null);
@@ -36,17 +36,9 @@ const NavigationBar = () => {
 
   if (!userInfo) {
     return (
-      <div
-        className="text-center"
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          height: "100vh",
-        }}
-      >
-        <BounceLoader color="red" />
-      </div>
+     <>
+     <Loader />
+     </>
     );
   }
   return (

@@ -9,6 +9,7 @@ import {
 import { useUserInfo } from "./hooks/userInfo";
 import NavigationBar from "./NavigationBar";
 import { Button } from "./components/ui/button";
+import Loader from "./Loader";
 
 const HistoryPage = () => {
   const { userInfo } = useUserInfo(); // Using custom hook to get userInfo
@@ -60,7 +61,7 @@ const HistoryPage = () => {
     return (
       <>
         <NavigationBar />
-        <div>Loading pins...</div>
+        <div><Loader/></div>
       </>
     );
   }
@@ -80,10 +81,10 @@ const HistoryPage = () => {
       <NavigationBar />
       <div className="pt-24 space-y-6"> {/* Added space-y-6 for spacing between cards */}
         {pins.map((pin) => (
-          <Card key={pin.id} className="w-full bg-white text-gray-900 border rounded-md shadow-sm">
+          <Card key={pin.id} className="w-full bg-white text-gray-900 border rounded-xl shadow-sm">
             <div className="p-4">
               {/* Pin Genre */}
-              <h2 className="text-xl font-bold text-gray-800 mb-4">{pin.genre}</h2>
+              <h2 className="text-xl font-bold text-red-600 mb-1">{pin.genre}</h2>
 
               <div className="flex items-center space-x-4">
                 {/* Image Section */}
@@ -91,7 +92,7 @@ const HistoryPage = () => {
                   <img
                     src={pin.imageUrl}
                     alt={pin.genre}
-                    className="w-full h-full object-cover rounded-md"
+                    className="w-full h-full object-cover rounded-xl"
                   />
                 </div>
 
@@ -104,7 +105,7 @@ const HistoryPage = () => {
                           href={track.url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-blue-500 hover:underline"
+                          className="text-red-500 hover:text-red-700 hover:underline"
                         >
                           {track.name} by {track.artist}
                         </a>
@@ -118,7 +119,7 @@ const HistoryPage = () => {
                 <div className="flex-shrink-0">
                   <Button
                     onClick={() => handleDelete(pin.id)}
-                    className="px-4 py-2 text-white bg-red-500 rounded-md hover:bg-red-600"
+                    className="px-4 py-2 text-white bg-red-500 rounded-xl hover:bg-red-700"
                   >
                     Delete
                   </Button>
