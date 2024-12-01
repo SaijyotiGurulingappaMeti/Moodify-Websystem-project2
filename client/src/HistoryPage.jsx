@@ -10,6 +10,7 @@ import { useUserInfo } from "./hooks/userInfo";
 import NavigationBar from "./NavigationBar";
 import { Button } from "./components/ui/button";
 import Loader from "./Loader";
+import { IoMdMusicalNotes } from "react-icons/io";
 
 const HistoryPage = () => {
   const { userInfo } = useUserInfo(); // Using custom hook to get userInfo
@@ -18,7 +19,6 @@ const HistoryPage = () => {
 
   // Handle delete function
   const handleDelete = async (trackId) => {
-    
     try {
       // Make DELETE request to backend to remove the pin
       const response = await fetch(
@@ -61,7 +61,9 @@ const HistoryPage = () => {
     return (
       <>
         <NavigationBar />
-        <div><Loader/></div>
+        <div>
+          <Loader />
+        </div>
       </>
     );
   }
@@ -79,12 +81,18 @@ const HistoryPage = () => {
   return (
     <>
       <NavigationBar />
-      <div className="pt-24 space-y-6"> {/* Added space-y-6 for spacing between cards */}
+      <div className="pt-24 space-y-6">
         {pins.map((pin) => (
-          <Card key={pin.id} className="w-full bg-white text-gray-900 border rounded-xl shadow-sm">
+          <Card
+            key={pin.id}
+            className="w-full bg-white text-gray-900 border rounded-xl shadow-sm"
+          >
             <div className="p-4">
               {/* Pin Genre */}
-              <h2 className="text-xl font-bold text-red-600 mb-1">{pin.genre}</h2>
+              <h2 className="text-xl font-bold text-red-600 mb-1 flex items-center space-x-2">
+                <IoMdMusicalNotes />
+                <span>{pin.genre}</span>
+              </h2>
 
               <div className="flex items-center space-x-4">
                 {/* Image Section */}
@@ -105,11 +113,13 @@ const HistoryPage = () => {
                           href={track.url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-red-500 hover:text-red-700 hover:underline"
+                          className="text-blue-500 hover:text-blue-700 hover:underline"
                         >
                           {track.name} by {track.artist}
                         </a>
-                        {index < pin.spotifyTracks.length - 1 && <span className="px-2">|</span>}
+                        {index < pin.spotifyTracks.length - 1 && (
+                          <span className="px-2">|</span>
+                        )}
                       </li>
                     ))}
                   </ul>
