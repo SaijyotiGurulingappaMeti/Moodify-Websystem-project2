@@ -8,6 +8,9 @@ import {
 import { Button } from "./components/ui/button";
 import { FaCircleChevronDown } from "react-icons/fa6";
 import { useNavigate } from "react-router-dom";
+import { MdHistory } from "react-icons/md";
+import { FaHome } from "react-icons/fa";
+import { MdOutlinePermIdentity } from "react-icons/md";
 
 const UserDropdown = ({ name }) => {
   const navigate = useNavigate(); // Get the navigate function
@@ -16,9 +19,9 @@ const UserDropdown = ({ name }) => {
     navigate("/history"); // Navigate to the History page
   };
 
-  const handleDashboardClick = ()=>{
+  const handleDashboardClick = () => {
     navigate("/dashboard");
-  }
+  };
 
   return (
     <DropdownMenu>
@@ -27,15 +30,19 @@ const UserDropdown = ({ name }) => {
           <FaCircleChevronDown color="red" />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="bg-white text-gray-900 rounded-xl">
-        <DropdownMenuItem>{name}</DropdownMenuItem>
+      <DropdownMenuContent className="bg-white text-gray-900  rounded-xl">
+        <DropdownMenuItem>
+          <MdOutlinePermIdentity />
+          {name}
+        </DropdownMenuItem>
         <DropdownMenuSeparator className="bg-gray-200" />
         <DropdownMenuItem onClick={handleHistoryClick}>
-          History
+          <MdHistory /> History
         </DropdownMenuItem>
         <DropdownMenuSeparator className="bg-gray-200" />
         <DropdownMenuItem onClick={handleDashboardClick}>
-          DashBoard
+          <FaHome />
+          Dashboard
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
