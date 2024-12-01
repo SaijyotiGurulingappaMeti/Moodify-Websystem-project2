@@ -476,7 +476,7 @@ app.post("/auth/musicAttribute", async (req, res) => {
   }
 });
 
-//fetch the pin spotify data
+//fetch the pin-spotify-tracksdata
 app.get("/auth/musicAttribute/:pinId/:userId", async (req, res) => {
   const { pinId, userId } = req.params;
   const customId = `${pinId}_${userId}`;
@@ -495,6 +495,35 @@ app.get("/auth/musicAttribute/:pinId/:userId", async (req, res) => {
     res.status(500).json({ error: "Failed to retrieve the music data" });
   }
 });
+
+//delete the pin-spotify-tracks data
+app.delete("/auth/deleteTracks/:pinId/:userId", async (req, res) => {
+  const { pinId, userId } = req.params;
+  const customId = `${pinId}_${userId}`;
+
+  try {
+    // Locate the document with the customId
+    const docRef = db.collection("PinUserSpotifyTracks").doc(customId);
+    const doc = await docRef.get();
+
+    if (!doc.exists) {
+      return res
+        .status(404)
+        .json({ error: "No data found for this pinId and userId" });
+    }
+
+    // Delete the document
+    await docRef.delete();
+
+    res
+      .status(200)
+      .json({ message: "Data successfully deleted for the pinId and userId" });
+  } catch (error) {
+    console.error("Error deleting music data:", error);
+    res.status(500).json({ error: "Failed to delete the music data" });
+  }
+});
+
 //history page
 app.get("/auth/history/:userId", async (req, res) => {
   const { userId } = req.params;
