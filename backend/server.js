@@ -297,24 +297,35 @@ app.get("/auth/pins", async (req, res) => {
   }
 
   try {
-    const pinsResponse = await axios.get("https://api.pinterest.com/v5/pins", {
-      headers: {
-        Authorization: `Bearer ${req.session.accessToken}`,
-      },
-    });
-    const pins = pinsResponse.data.items.map((pin) => ({
-      id: pin.id,
-      title: pin.title || "Untitled",
-      description: pin.description || "No description",
-      link: pin.link || "No link available",
-      imageUrl: pin.media?.images?.["600x"]?.url || "No image available",
-      dominantColor: pin.dominant_color || "#000000",
-      boardOwner: pin.board_owner?.username || "Unknown",
-      createdAt: pin.created_at,
-    }));
+    let allPins = [];
+    let nextCursor = null; // To track pagination cursor
 
-    // console.log(pins); // For debugging
-    res.json(pins);
+    do {
+      const pinsResponse = await axios.get("https://api.pinterest.com/v5/pins", {
+        headers: {
+          Authorization: `Bearer ${req.session.accessToken}`,
+        },
+        params: {
+          bookmark: nextCursor, // Use the cursor for the next page
+        },
+      });
+
+      const pins = pinsResponse.data.items.map((pin) => ({
+        id: pin.id,
+        title: pin.title || "Untitled",
+        description: pin.description || "No description",
+        link: pin.link || "No link available",
+        imageUrl: pin.media?.images?.["600x"]?.url || "No image available",
+        dominantColor: pin.dominant_color || "#000000",
+        boardOwner: pin.board_owner?.username || "Unknown",
+        createdAt: pin.created_at,
+      }));
+
+      allPins = allPins.concat(pins);
+      nextCursor = pinsResponse.data.bookmark; // Update the cursor for the next page
+    } while (nextCursor); // Continue until there are no more pages
+
+    res.json(allPins);
   } catch (error) {
     if (error.response) {
       console.error("Error fetching pins:", {
@@ -333,7 +344,6 @@ app.get("/auth/pins", async (req, res) => {
         .status(500)
         .send("Error fetching pins info: No response from Pinterest API");
     } else {
-      // Something happened in setting up the request
       console.error("Error fetching pins (setup):", error.message);
       res.status(500).send("Error fetching pins info: " + error.message);
     }
