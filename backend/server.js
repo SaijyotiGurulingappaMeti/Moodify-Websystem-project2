@@ -11,10 +11,10 @@ const { messaging } = require("firebase-admin");
 
 require("dotenv").config();
 
-const app = express();
-const client = new ImageAnnotatorClient();
+const app = express();//Initialize express
+const client = new ImageAnnotatorClient();//Initialize Vision ImageAnnotatorClient
 
-app.use(cors({ origin: "http://localhost:5173", credentials: true }));
+app.use(cors({ origin: "http://localhost:5173", credentials: true }));//For Cross-Origin Resource Sharing between frontend and backend
 app.use(express.json());
 app.use(
   session({
