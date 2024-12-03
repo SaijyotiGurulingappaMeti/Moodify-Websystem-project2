@@ -21,26 +21,27 @@ app.use(
     secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: true,
-  })
+  })//Defining Express Session which uses Session Secret Key From .env file
 );
 
 const CLIENT_ID = process.env.PINTEREST_CLIENT_ID;
 const CLIENT_SECRET = process.env.PINTEREST_CLIENT_SECRET;
 const REDIRECT_URI = "http://localhost:4000/auth/callback";
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_CREDENTIALS);
-const SPOTIFY_CLIENT_ID = process.env.SPOTIFY_CLIENT_ID;
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_CREDENTIALS);//Gemini
+const SPOTIFY_CLIENT_ID = process.env.SPOTIFY_CLIENT_ID;//Spotify
 const SPOTIFY_CLIENT_SECRET = process.env.SPOTIFY_CLIENT_SECRET;
 let spotifyAccessToken = null;
 let accessToken = null;
 
 const credentials = Buffer.from(`${CLIENT_ID}:${CLIENT_SECRET}`).toString(
   "base64"
-);
-//get spotify access token
+);//converting pinterest credentials to base64 to comply with pinterest apis
 
+
+//get spotify access token
 const getSpotifyAccessToken = async () => {
   if (spotifyAccessToken) return spotifyAccessToken;
-
+//to retrieve access token from spotify
   const response = await axios.post(
     "https://accounts.spotify.com/api/token",
     new URLSearchParams({ grant_type: "client_credentials" }),
@@ -56,14 +57,16 @@ const getSpotifyAccessToken = async () => {
     }
   );
 
-  spotifyAccessToken = response.data.access_token;
+  spotifyAccessToken = response.data.access_token;//stores the access token from spotify
   return spotifyAccessToken;
 };
 
+
 //get music atttributes
 const getMusicAttribute = async (emotion) => {
-  model = genAI.getGenerativeModel({ model: "gemini-pro" });
+  model = genAI.getGenerativeModel({ model: "gemini-pro" });//Gemini model- gemini-pro
 
+  //Prompt given to give vales to the presets based on the emotion (Required for Spotify Recomendation
   const prompt = `For emotion "${emotion}", provide the following in a strict JSON object format:
 {
   "min_acousticness": <value>,
@@ -80,9 +83,9 @@ const getMusicAttribute = async (emotion) => {
   "target_tempo": <value>
 }`;
 
-  const result = await model.generateContent(prompt);
+  const result = await model.generateContent(prompt);//result from prompt is stored
   const response = await result.response;
-  const text = await response.text();
+  const text = await response.text();//converts into text
   console.log("Raw output:", text);
   try {
     // Extract JSON substring from text
@@ -101,11 +104,13 @@ const getMusicAttribute = async (emotion) => {
     throw new Error("Failed to parse attributes from generative model");
   }
 };
+
+
 //get music recommendations
-
 const getMusicRecommendations = async (genre, attributes) => {
-  const model = genAI.getGenerativeModel({ model: "gemini-pro" });
-
+  const model = genAI.getGenerativeModel({ model: "gemini-pro" });//Gemini Model- gemini-pro
+  
+  //prompt to retrieve songs based on the  sttributes and genre selected by user
   const prompt = `Given the following attributes:
   ${JSON.stringify(attributes)}
   and the genre "${genre}", recommend 5 Spotify songs. Return in strict JSON format:
@@ -122,7 +127,8 @@ const getMusicRecommendations = async (genre, attributes) => {
   const response = await result.response;
   const text = await response.text();
   console.log("Raw output:", text);
-
+  
+  //Json parsing
   try {
     const jsonStart = text.indexOf("[");
     const jsonEnd = text.lastIndexOf("]");
@@ -140,11 +146,12 @@ const getMusicRecommendations = async (genre, attributes) => {
   }
 };
 
+
 //get spotify tracks
 const getSpotifyTracks = async (recommendations) => {
   try {
     const accessToken = await getSpotifyAccessToken();
-
+  //Requests to fetch the tracks retrieved from Gemini
     const trackRequests = recommendations.map(async (rec) => {
       const url = new URL("https://api.spotify.com/v1/search");
       const query = `${rec.title} ${rec.artist}`;
@@ -167,7 +174,7 @@ const getSpotifyTracks = async (recommendations) => {
         return null;
       }
 
-      const data = await response.json();
+      const data = await response.json();//Converting into Json
 
       // Check if the response contains tracks
       const track = data?.tracks?.items?.[0];
@@ -199,8 +206,8 @@ const getSpotifyTracks = async (recommendations) => {
   }
 };
 
-//login function
 
+//Login function
 app.get("/auth/login", (req, res) => {
   const authURL = `https://www.pinterest.com/oauth/?response_type=code&client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(
     REDIRECT_URI
@@ -208,8 +215,8 @@ app.get("/auth/login", (req, res) => {
   res.redirect(authURL);
 });
 
-//callback function
 
+//callback function
 app.get("/auth/callback", async (req, res) => {
   const { code } = req.query; // Get the authorization code from the query string
 
@@ -245,8 +252,8 @@ app.get("/auth/callback", async (req, res) => {
   }
 });
 
-// fetch userinfo
 
+// Fetch userinfo from Pinterest
 app.get("/auth/userinfo", async (req, res) => {
   if (!req.session.accessToken) {
     return res.status(401).send("User not authenticated");
@@ -289,8 +296,8 @@ app.get("/auth/userinfo", async (req, res) => {
   }
 });
 
-//fetch pins
 
+//Fetch pins from Pinterest
 app.get("/auth/pins", async (req, res) => {
   if (!req.session.accessToken) {
     return res.status(401).send("User not authenticated");
@@ -350,6 +357,7 @@ app.get("/auth/pins", async (req, res) => {
   }
 });
 
+
 //Vision api implementation
 app.post("/auth/sendPin", async (req, res) => {
   const { pinId, imageUrl, userId, username } = req.body;
@@ -365,8 +373,8 @@ app.post("/auth/sendPin", async (req, res) => {
   };
 
   try {
-    const [result] = await client.faceDetection(imageUrl);
-    const faces = result.faceAnnotations;
+    const [result] = await client.faceDetection(imageUrl);//Face-Detection in the image
+    const faces = result.faceAnnotations;//Store faces in the array
 
     if (faces.length === 0) {
       console.log("No faces detected");
@@ -378,6 +386,7 @@ app.post("/auth/sendPin", async (req, res) => {
 
     // Extract likelihoods for emotions
     const face = faces[0]; // Taking the first detected face
+    //Map based on emotions retrieved from Vision Api
     const emotions = {
       joy: likelihoodMap[face.joyLikelihood] || 0,
       sorrow: likelihoodMap[face.sorrowLikelihood] || 0,
@@ -425,12 +434,12 @@ app.post("/auth/sendPin", async (req, res) => {
   }
 });
 
-//check if spotify tracks already present in backend
+//Check if spotify tracks already present in backend
 app.post("/auth/checkPin", async (req, res) => {
   const { pinId, userId } = req.body;
 
   try {
-    const customId = `${pinId}_${userId}`;
+    const customId = `${pinId}_${userId}`;//Custom Id 
 
     // Check if the document already exists in Firestore
     const doc = await db.collection("PinUserSpotifyTracks").doc(customId).get();
@@ -446,7 +455,7 @@ app.post("/auth/checkPin", async (req, res) => {
   }
 });
 
-//fetch musicAttributes
+//Fetch musicAttributes
 app.post("/auth/musicAttribute", async (req, res) => {
   const { emotion, pinId, userId, username, imageUrl, genre } = req.body;
   console.log(req.body);
@@ -482,7 +491,7 @@ app.post("/auth/musicAttribute", async (req, res) => {
   }
 });
 
-//fetch the pin-spotify-tracksdata
+//Fetch the pin-spotify-tracksdata
 app.get("/auth/musicAttribute/:pinId/:userId", async (req, res) => {
   const { pinId, userId } = req.params;
   const customId = `${pinId}_${userId}`;
@@ -502,9 +511,9 @@ app.get("/auth/musicAttribute/:pinId/:userId", async (req, res) => {
   }
 });
 
-//delete the pin-spotify-tracks data
+//Delete the Pin-User-SpotifyTracks data
 app.delete("/auth/deleteTracks/:trackId", async (req, res) => {
-  const { trackId} = req.params;
+  const { trackId} = req.params;//Track Id taken form request
 
   try {
     // Locate the document with the customId
@@ -530,11 +539,12 @@ app.delete("/auth/deleteTracks/:trackId", async (req, res) => {
   }
 });
 
-//history page
+//History page
 app.get("/auth/history/:userId", async (req, res) => {
   const { userId } = req.params;
 
   try {
+    //Retrieve tracks from PinUserSpotifyTracks document matched on User Id
     const snapshot = await db
       .collection("PinUserSpotifyTracks")
       .where("userId", "==", userId)
