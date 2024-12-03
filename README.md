@@ -2,10 +2,14 @@ Moodify is a web application that offers personalized song recommendations by an
 
 Installation:
 1. Clone the repository.
-2. cd into client folder: i) Run "npm install". ii) Run "npm run dev",this runs the application on localhost:5713(Vite).
-3.cd into backend folder: i) Run "npm install". ii) Run "npm start", this runs the backedn on localhost:4000.
-4.Define the environment variables.
-5.Download Service accounts json file from Firestore, and store it in config folder in backend.
-6.Rename Service accounts json to "creds.json".
+2. cd into client folder.
+3. Run "npm install".
+4. Run "npm run dev",this runs the application on localhost:5713(Vite).
+5. cd into backend folder.
+6. Run "npm install".
+7. Run "npm start", this runs the backedn on localhost:4000.
+8. Define the environment variables.
+9. Download Service accounts json file from Firestore, and store it in config folder in backend.
+10. Rename Service accounts json to "creds.json".
 
 Now you are ready to use the Moodify application in your localhost!
